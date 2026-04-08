@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENVE × Terradosa — Stock en Vivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Oswald:wght@700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;
+  --card:#ffffff;
+  --border:#e0ddd8;
+  --text:#1a1a1a;
+  --muted:#888;
+  --accent:#1a1a1a;
+  --green:#1a9e5c;
+  --green-bg:#edf7f2;
+  --amber:#b86e00;
+  --amber-bg:#fff4e0;
+  --red:#c0392b;
+  --red-bg:#fdecea;
+  --enve:#0a0a0a;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── NAV ── */
+nav{background:var(--enve);padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{display:flex;align-items:center;}
+.nav-right{display:flex;align-items:center;gap:16px}
+.last-update{font-size:12px;color:#aaa}
+#adminBtn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:6px 16px;border-radius:6px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s}
+#adminBtn:hover{background:rgba(255,255,255,0.15)}
+.live-dot{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#6fcf97}
+.live-dot::before{content:'';width:7px;height:7px;border-radius:50%;background:#6fcf97;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+
+/* ── HERO ── */
+.hero{background:var(--enve);color:#fff;padding:48px 40px 40px;border-bottom:1px solid #222}
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap"); .hero h1{font-family:'Oswald',sans-serif;font-size:clamp(28px,5vw,52px);font-weight:700;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase}
+.hero p{color:#aaa;font-size:15px;max-width:480px;line-height:1.6}
+
+/* ── FILTROS ── */
+.filters-bar{padding:20px 40px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border);background:var(--card)}
+.filter-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-right:4px}
+.filter-btn{padding:7px 16px;border:1px solid var(--border);border-radius:99px;background:transparent;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text);transition:all .15s}
+.filter-btn:hover{border-color:#aaa}
+.filter-btn.active{background:var(--enve);color:#fff;border-color:var(--enve)}
+.search-wrap{margin-left:auto;position:relative}
+.search-wrap input{border:1px solid var(--border);border-radius:8px;padding:8px 12px 8px 34px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none;width:200px;transition:border-color .2s}
+.search-wrap input:focus{border-color:#aaa}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--muted);pointer-events:none}
+
+/* ── SUMMARY CARDS ── */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;padding:24px 40px}
+.sum-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:4px}
+.sum-card .val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800}
+.sum-card .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.sum-card.c-green .val{color:var(--green)}
+.sum-card.c-amber .val{color:var(--amber)}
+.sum-card.c-red   .val{color:var(--red)}
+
+/* ── TABLA PÚBLICA ── */
+.table-wrap{padding:0 40px 40px}
+.table-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px}
+.stock-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.stock-table th{text-align:left;padding:14px 18px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border);background:#fafaf8}
+.stock-table td{padding:16px 18px;font-size:14px;border-bottom:1px solid var(--border)}
+.stock-table tr:last-child td{border-bottom:none}
+.stock-table tbody tr{transition:background .15s}
+.stock-table tbody tr:hover{background:#fafaf8}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:500}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-green::before{background:var(--green)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-amber::before{background:var(--amber)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-red::before{background:var(--red)}
+.price{font-weight:600;font-size:14px}
+.cat-pill{background:#f0eee8;color:#555;padding:3px 10px;border-radius:4px;font-size:12px;display:inline-block}
+.disc-pill{font-size:12px;color:var(--muted)}
+.stock-qty{font-family:'Syne',sans-serif;font-weight:700;font-size:18px}
+.stock-qty.zero{color:var(--red)}
+.stock-qty.low{color:var(--amber)}
+.stock-qty.ok{color:var(--green)}
+.no-results{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+.whatsapp-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#25d366;color:#fff;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;transition:opacity .2s;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.whatsapp-btn:hover{opacity:.85}
+
+/* ── MODAL ADMIN LOGIN ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:36px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.2)}
+.modal h3{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:24px}
+.modal label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);display:block;margin-bottom:6px}
+.modal input{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:16px;background:var(--bg);transition:border-color .2s}
+.modal input:focus{border-color:#aaa}
+.modal-btns{display:flex;gap:10px}
+.btn-primary{flex:1;background:var(--enve);color:#fff;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s}
+.btn-primary:hover{opacity:.85}
+.btn-cancel{background:transparent;border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text)}
+.btn-cancel:hover{background:var(--bg)}
+.modal-error{font-size:12px;color:var(--red);margin-top:-10px;margin-bottom:12px;display:none}
+.modal-error.show{display:block}
+
+/* ── PANEL ADMIN ── */
+#adminPanel{display:none}
+#adminPanel.show{display:block}
+.admin-bar{background:#fff9e8;border-bottom:2px solid #f5c842;padding:12px 40px;display:flex;align-items:center;justify-content:space-between}
+.admin-bar span{font-size:13px;font-weight:600;color:#7a6000;display:flex;align-items:center;gap:8px}
+.admin-bar span svg{width:16px;height:16px}
+.admin-actions{display:flex;gap:10px}
+.btn-add{background:var(--enve);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px}
+.btn-logout{background:transparent;border:1px solid #d4b840;color:#7a6000;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-logout:hover{background:#fff3cc}
+
+/* Admin table extras */
+.admin-table-wrap{padding:0 40px 40px}
+.admin-table-wrap .table-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.admin-table-wrap .table-title small{font-size:12px;color:var(--muted);font-weight:400}
+.stock-table td.edit-cell{padding:8px 18px}
+.inline-input{border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:14px;font-family:'DM Sans',sans-serif;width:100%;background:var(--bg);outline:none;transition:border-color .2s}
+.inline-input:focus{border-color:var(--accent)}
+.btn-save-row{background:var(--green);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-delete-row{background:transparent;border:1px solid #ddd;color:var(--muted);border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-delete-row:hover{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.edit-btns{display:flex;gap:6px}
+
+/* ── MODAL NUEVO PRODUCTO ── */
+.add-modal{background:var(--card);border-radius:16px;padding:36px;width:100%;max-width:480px;box-shadow:0 24px 64px rgba(0,0,0,.2)}
+.add-modal h3{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:20px}
+.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.add-field{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.add-field.full{grid-column:1/-1}
+.add-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.add-field input,.add-field select{border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--bg);outline:none;transition:border-color .2s}
+.add-field input:focus,.add-field select:focus{border-color:#aaa}
+.add-modal-btns{display:flex;gap:10px;margin-top:20px}
+
+/* ── FOOTER ── */
+footer{background:var(--enve);color:#666;text-align:center;padding:20px 40px;font-size:12px}
+footer strong{color:#fff}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  nav{padding:0 20px}
+  .hero,.filters-bar,.summary,.table-wrap,.admin-bar,.admin-table-wrap{padding-left:20px;padding-right:20px}
+  .summary{grid-template-columns:repeat(2,1fr)}
+  .stock-table th:nth-child(4),.stock-table td:nth-child(4){display:none}
+  .search-wrap{margin-left:0;width:100%}
+  .search-wrap input{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><img src="data:image/png;base64,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" alt="ENVE" style="height:28px;filter:invert(0);display:block;"></div>
+  <div class="nav-right">
+    <span class="live-dot" id="liveDot">En vivo</span>
+    <span class="last-update" id="lastUpdate"></span>
+    <button id="adminBtn" onclick="showLoginModal()">Administrar</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Stock disponible</h1>
+  <p>Consulta en tiempo real la disponibilidad de productos ENVE. Precios y unidades actualizados al instante.</p>
+    <div style="margin-top:28px;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1.5px;">Distribuidor oficial</span>
+      <div style="width:1px;height:28px;background:#333;"></div>
+      <img src="data:image/png;base64,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" alt="Terradosa Gravel" style="height:40px;display:block;">
+    </div>
+</div>
+
+<!-- PANEL ADMIN (oculto hasta login) -->
+<div id="adminPanel">
+  <div class="admin-bar">
+    <span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Modo administrador activo — solo tú ves este panel
+    </span>
+    <div class="admin-actions">
+      <button class="btn-add" onclick="showAddModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo producto
+      </button>
+      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+  <div class="admin-table-wrap">
+    <div class="table-title">
+      <span>Gestión de inventario <small id="adminCount"></small></span>
+    </div>
+    <table class="stock-table" id="adminTable">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Disciplina</th>
+          <th>Stock</th>
+          <th>Estado</th>
+          <th>Precio (COP)</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="adminTbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- FILTROS -->
+<div class="filters-bar">
+  <span class="filter-label">Filtrar:</span>
+  <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
+  <button class="filter-btn" onclick="setFilter('Disponible',this)">Disponibles</button>
+  <button class="filter-btn" onclick="setFilter('Últimas unidades',this)">Últimas unidades</button>
+  <button class="filter-btn" onclick="setFilter('Agotado',this)">Agotados</button>
+  <button class="filter-btn" onclick="setFilter('Ruta',this)">Ruta</button>
+  <button class="filter-btn" onclick="setFilter('MTB',this)">MTB</button>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" placeholder="Buscar producto..." oninput="setSearch(this.value)">
+  </div>
+</div>
+
+<!-- RESUMEN -->
+<div class="summary">
+  <div class="sum-card c-green"><div class="val" id="sumTotal">—</div><div class="lbl">Productos</div></div>
+  <div class="sum-card c-green"><div class="val" id="sumDisp">—</div><div class="lbl">Disponibles</div></div>
+  <div class="sum-card c-amber"><div class="val" id="sumLow">—</div><div class="lbl">Últimas unidades</div></div>
+  <div class="sum-card c-red"><div class="val" id="sumOut">—</div><div class="lbl">Agotados</div></div>
+</div>
+
+<!-- TABLA PÚBLICA -->
+<div class="table-wrap">
+  <div class="table-title">Catálogo de productos</div>
+  <table class="stock-table">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Categoría</th>
+        <th>Disciplina</th>
+        <th>Disponibilidad</th>
+        <th>Estado</th>
+        <th>Precio</th>
+        <th>Contacto</th>
+      </tr>
+    </thead>
+    <tbody id="publicTbody"></tbody>
+  </table>
+</div>
+
+<footer>
+  <strong>ENVE</strong> &nbsp;·&nbsp; Stock actualizado en tiempo real &nbsp;·&nbsp; Para pedidos, escríbenos por WhatsApp
+</footer>
+
+<!-- MODAL LOGIN -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal">
+    <h3>Acceso administrador</h3>
+    <p>Ingresa tu contraseña para gestionar el inventario</p>
+    <label for="adminPass">Contraseña</label>
+    <input type="password" id="adminPass" placeholder="enve2025" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="modal-error" id="loginError">Contraseña incorrecta</div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="hideLoginModal()">Cancelar</button>
+      <button class="btn-primary" onclick="doLogin()">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO PRODUCTO -->
+<div class="overlay" id="addOverlay">
+  <div class="add-modal">
+    <h3>Nuevo producto</h3>
+    <div class="add-grid">
+      <div class="add-field full">
+        <label>Nombre del producto</label>
+        <input type="text" id="np-nombre" placeholder="Ej: SES 4.5 Wheelset">
+      </div>
+      <div class="add-field">
+        <label>Categoría</label>
+        <select id="np-cat">
+          <option>Ruedas</option>
+          <option>Componentes</option>
+          <option>Manubrios</option>
+          <option>Horquillas</option>
+          <option>Accesorios</option>
+          <option>Cuadros</option>
+        </select>
+      </div>
+      <div class="add-field">
+        <label>Disciplina</label>
+        <select id="np-disc">
+          <option>Ruta</option>
+          <option>MTB</option>
+          <option>Gravel</option>
+             
+        </select>
+      </div>
+      <div class="add-field">
+        <label>Stock (unidades)</label>
+        <input type="number" id="np-stock" min="0" value="1">
+      </div>
+      <div class="add-field">
+        <label>Precio (COP)</label>
+        <input type="text" id="np-precio" placeholder="Ej: $14.500.000">
+      </div>
+    </div>
+    <div class="add-modal-btns">
+      <button class="btn-cancel" onclick="hideAddModal()">Cancelar</button>
+      <button class="btn-primary" onclick="addProduct()">Agregar producto</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const ADMIN_PASSWORD = 'enve2026'; // Cambia esta contraseña
+const WHATSAPP_NUMBER = '3007397114'; // Cambia por tu número (sin +)
+
+// ── DATOS INICIALES (del archivo Excel) ──
+let inventory = [
+  { id: 1, producto: 'SES 4.5 Wheelset',  categoria: 'Ruedas',      disciplina: 'Ruta', stock: 4, precio: '$14.500.000' },
+  { id: 2, producto: 'M630 Series',        categoria: 'Ruedas',      disciplina: 'MTB',  stock: 0, precio: '$12.800.000' },
+  { id: 3, producto: 'Aero Road Stem',     categoria: 'Componentes', disciplina: 'Ruta', stock: 1, precio: '$1.200.000'  },
+];
+let nextId = 4;
+
+// ── ESTADO ──
+let isAdmin = false;
+let activeFilter = 'todos';
+let searchQuery = '';
+
+// ── HELPERS ──
+function statusOf(stock) {
+  if (stock === 0) return 'Agotado';
+  if (stock === 1) return 'Últimas unidades';
+  return 'Disponible';
+}
+
+function badgeClass(status) {
+  if (status === 'Disponible')      return 'badge badge-green';
+  if (status === 'Últimas unidades') return 'badge badge-amber';
+  return 'badge badge-red';
+}
+
+function stockClass(stock) {
+  if (stock === 0) return 'stock-qty zero';
+  if (stock <= 1)  return 'stock-qty low';
+  return 'stock-qty ok';
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateTimestamp() {
+  const now = new Date();
+  document.getElementById('lastUpdate').textContent =
+    'Actualizado ' + now.toLocaleTimeString('es-CO', {hour:'2-digit',minute:'2-digit'});
+}
+
+// ── FILTROS Y BÚSQUEDA ──
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPublic();
+}
+
+function setSearch(q) {
+  searchQuery = q.toLowerCase();
+  renderPublic();
+}
+
+function filtered() {
+  return inventory.filter(p => {
+    const status = statusOf(p.stock);
+    const matchFilter = activeFilter === 'todos' || status === activeFilter ||
+      p.disciplina === activeFilter;
+    const matchSearch = !searchQuery || p.producto.toLowerCase().includes(searchQuery) ||
+      p.categoria.toLowerCase().includes(searchQuery);
+    return matchFilter && matchSearch;
+  });
+}
+
+// ── RENDER PÚBLICO ──
+function renderPublic() {
+  const data = filtered();
+  const tbody = document.getElementById('publicTbody');
+
+  // Summary
+  document.getElementById('sumTotal').textContent = inventory.length;
+  document.getElementById('sumDisp').textContent  = inventory.filter(p => statusOf(p.stock) === 'Disponible').length;
+  document.getElementById('sumLow').textContent   = inventory.filter(p => statusOf(p.stock) === 'Últimas unidades').length;
+  document.getElementById('sumOut').textContent   = inventory.filter(p => statusOf(p.stock) === 'Agotado').length;
+
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="no-results">No se encontraron productos con ese filtro.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(p => {
+    const status = statusOf(p.stock);
+    const msg = encodeURIComponent(`Hola ENVE! Me interesa el producto: ${p.producto} (${p.precio}). ¿Está disponible?`);
+    return `<tr>
+      <td><strong>${escapeHtml(p.producto)}</strong></td>
+      <td><span class="cat-pill">${escapeHtml(p.categoria)}</span></td>
+      <td><span class="disc-pill">${escapeHtml(p.disciplina)}</span></td>
+      <td><span class="${stockClass(p.stock)}">${p.stock}</span></td>
+      <td><span class="${badgeClass(status)}">${status}</span></td>
+      <td class="price">${escapeHtml(p.precio)}</td>
+      <td>
+        <a class="whatsapp-btn" href="https://wa.me/${WHATSAPP_NUMBER}?text=${msg}" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Consultar
+        </a>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── RENDER ADMIN ──
+function renderAdmin() {
+  const tbody = document.getElementById('adminTbody');
+  document.getElementById('adminCount').textContent = `(${inventory.length} productos)`;
+
+  tbody.innerHTML = inventory.map(p => `
+    <tr id="row-${p.id}">
+      <td class="edit-cell"><input class="inline-input" value="${escapeHtml(p.producto)}" id="e-nombre-${p.id}"></td>
+      <td class="edit-cell">
+        <select class="inline-input" id="e-cat-${p.id}">
+          ${['Ruedas','Componentes','Manubrios','Horquillas','Accesorios','Cuadros'].map(c=>`<option${c===p.categoria?' selected':''}>${c}</option>`).join('')}
+        </select>
+      </td>
+      <td class="edit-cell">
+        <select class="inline-input" id="e-disc-${p.id}">
+          ${['Ruta','MTB','Gravel','CX','Triatlón'].map(d=>`<option${d===p.disciplina?' selected':''}>${d}</option>`).join('')}
+        </select>
+      </td>
+      <td class="edit-cell"><input class="inline-input" type="number" min="0" value="${p.stock}" id="e-stock-${p.id}" style="width:80px"></td>
+      <td><span class="${badgeClass(statusOf(p.stock))}">${statusOf(p.stock)}</span></td>
+      <td class="edit-cell"><input class="inline-input" value="${escapeHtml(p.precio)}" id="e-precio-${p.id}"></td>
+      <td>
+        <div class="edit-btns">
+          <button class="btn-save-row" onclick="saveRow(${p.id})">Guardar</button>
+          <button class="btn-delete-row" onclick="deleteRow(${p.id})">✕</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function saveRow(id) {
+  const p = inventory.find(x => x.id === id);
+  if (!p) return;
+  p.producto   = document.getElementById(`e-nombre-${id}`).value.trim();
+  p.categoria  = document.getElementById(`e-cat-${id}`).value;
+  p.disciplina = document.getElementById(`e-disc-${id}`).value;
+  p.stock      = parseInt(document.getElementById(`e-stock-${id}`).value) || 0;
+  p.precio     = document.getElementById(`e-precio-${id}`).value.trim();
+  renderPublic();
+  renderAdmin();
+  updateTimestamp();
+  flashRow(id);
+}
+
+function deleteRow(id) {
+  if (!confirm('¿Eliminar este producto del inventario?')) return;
+  inventory = inventory.filter(x => x.id !== id);
+  renderPublic();
+  renderAdmin();
+  updateTimestamp();
+}
+
+function flashRow(id) {
+  const row = document.getElementById(`row-${id}`);
+  if (!row) return;
+  row.style.background = '#edf7f2';
+  setTimeout(() => row.style.background = '', 1000);
+}
+
+function addProduct() {
+  const nombre = document.getElementById('np-nombre').value.trim();
+  if (!nombre) { alert('Ingresa el nombre del producto'); return; }
+  inventory.push({
+    id: nextId++,
+    producto:   nombre,
+    categoria:  document.getElementById('np-cat').value,
+    disciplina: document.getElementById('np-disc').value,
+    stock:      parseInt(document.getElementById('np-stock').value) || 0,
+    precio:     document.getElementById('np-precio').value.trim() || 'Consultar',
+  });
+  hideAddModal();
+  renderPublic();
+  renderAdmin();
+  updateTimestamp();
+}
+
+// ── LOGIN ──
+function showLoginModal() { document.getElementById('loginOverlay').classList.add('show'); setTimeout(()=>document.getElementById('adminPass').focus(),100) }
+function hideLoginModal() { document.getElementById('loginOverlay').classList.remove('show'); document.getElementById('adminPass').value=''; document.getElementById('loginError').classList.remove('show') }
+
+function doLogin() {
+  const pass = document.getElementById('adminPass').value;
+  if (pass === ADMIN_PASSWORD) {
+    isAdmin = true;
+    hideLoginModal();
+    document.getElementById('adminPanel').classList.add('show');
+    document.getElementById('adminBtn').textContent = 'Panel activo ✓';
+    document.getElementById('adminBtn').style.background = 'rgba(111,207,151,0.15)';
+    renderAdmin();
+  } else {
+    document.getElementById('loginError').classList.add('show');
+    document.getElementById('adminPass').value = '';
+    document.getElementById('adminPass').focus();
+  }
+}
+
+function logout() {
+  isAdmin = false;
+  document.getElementById('adminPanel').classList.remove('show');
+  document.getElementById('adminBtn').textContent = 'Administrar';
+  document.getElementById('adminBtn').style.background = '';
+}
+
+// ── MODAL AGREGAR ──
+function showAddModal() {
+  document.getElementById('addOverlay').classList.add('show');
+  document.getElementById('np-nombre').value = '';
+  document.getElementById('np-stock').value = '1';
+  document.getElementById('np-precio').value = '';
+}
+function hideAddModal() { document.getElementById('addOverlay').classList.remove('show') }
+
+// Cerrar overlays al click externo
+document.getElementById('loginOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) hideLoginModal() });
+document.getElementById('addOverlay').addEventListener('click',  e => { if (e.target === e.currentTarget) hideAddModal() });
+
+// ── INIT ──
+renderPublic();
+updateTimestamp();
+setInterval(updateTimestamp, 60000);
+</script>
+</body>
+</html>
